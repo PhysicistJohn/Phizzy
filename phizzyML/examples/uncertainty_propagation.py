@@ -80,7 +80,7 @@ def projectile_motion_example():
     # Visualize uncertainty distribution
     samples_v = v0.to_samples(5000)
     samples_theta = angle_rad.to_samples(5000)
-    range_samples = range_formula(samples_v, samples_theta).numpy()
+    range_samples = range_formula(samples_v, samples_theta).detach().numpy()
     
     plt.figure(figsize=(10, 6))
     plt.hist(range_samples, bins=50, density=True, alpha=0.7, color='blue', edgecolor='black')

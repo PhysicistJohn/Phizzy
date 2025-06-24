@@ -35,8 +35,8 @@ def main():
     integrator = LeapfrogIntegrator(dt=dt)
     
     # Convert to dimensionless for simulation
-    q0 = torch.tensor([initial_position.magnitude])
-    p0 = torch.tensor([initial_momentum.magnitude])
+    q0 = torch.tensor([float(initial_position.value)])
+    p0 = torch.tensor([float(initial_momentum.value)])
     
     # Integrate
     print("Simulating harmonic oscillator...")
@@ -59,9 +59,9 @@ def main():
     energies = np.array(energies)
     
     # Analytical solution for comparison
-    omega = np.sqrt(spring_constant.magnitude / mass.magnitude)
-    q_analytical = initial_position.magnitude * np.cos(omega * time)
-    p_analytical = -mass.magnitude * omega * initial_position.magnitude * np.sin(omega * time)
+    omega = np.sqrt(float(spring_constant.value) / float(mass.value))
+    q_analytical = float(initial_position.value) * np.cos(omega * time)
+    p_analytical = -float(mass.value) * omega * float(initial_position.value) * np.sin(omega * time)
     
     # Create plots
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
@@ -102,8 +102,8 @@ def main():
     
     # Energy components
     ax = axes[1, 1]
-    kinetic = 0.5 * mass.magnitude * np.sum(p_traj**2, axis=1)
-    potential = 0.5 * spring_constant.magnitude * np.sum(q_traj**2, axis=1)
+    kinetic = 0.5 * float(mass.value) * np.sum(p_traj**2, axis=1)
+    potential = 0.5 * float(spring_constant.value) * np.sum(q_traj**2, axis=1)
     ax.plot(time, kinetic, 'r-', label='Kinetic', linewidth=2)
     ax.plot(time, potential, 'b-', label='Potential', linewidth=2)
     ax.plot(time, energies, 'k--', label='Total', linewidth=1)

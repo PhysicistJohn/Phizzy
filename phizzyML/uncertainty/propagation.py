@@ -83,10 +83,11 @@ class UncertainTensor:
             return UncertainTensor(new_value, new_uncertainty, new_systematic)
         else:
             # Multiplying by constant scales uncertainty
+            other_tensor = torch.tensor(other) if not isinstance(other, torch.Tensor) else other
             return UncertainTensor(
                 self.value * other,
-                torch.abs(other) * self.uncertainty,
-                torch.abs(other) * self.systematic
+                torch.abs(other_tensor) * self.uncertainty,
+                torch.abs(other_tensor) * self.systematic
             )
     
     def __truediv__(self, other: Union['UncertainTensor', torch.Tensor, float]) -> 'UncertainTensor':
@@ -105,10 +106,11 @@ class UncertainTensor:
             
             return UncertainTensor(new_value, new_uncertainty, new_systematic)
         else:
+            other_tensor = torch.tensor(other) if not isinstance(other, torch.Tensor) else other
             return UncertainTensor(
                 self.value / other,
-                self.uncertainty / torch.abs(other),
-                self.systematic / torch.abs(other)
+                self.uncertainty / torch.abs(other_tensor),
+                self.systematic / torch.abs(other_tensor)
             )
     
     def __pow__(self, power: float) -> 'UncertainTensor':

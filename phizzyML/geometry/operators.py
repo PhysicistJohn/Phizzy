@@ -136,15 +136,18 @@ class LaplacianOperator(DifferentialOperator):
     
     def forward(self, field: torch.Tensor) -> torch.Tensor:
         """Apply Laplacian operator to field."""
-        if field.dim() == 1:
+        # Ensure float type to match laplacian_matrix
+        field_float = field.float()
+        
+        if field_float.dim() == 1:
             # Direct matrix-vector multiplication
-            return torch.sparse.mm(self.laplacian_matrix, field.unsqueeze(1)).squeeze()
+            return torch.sparse.mm(self.laplacian_matrix, field_float.unsqueeze(1)).squeeze()
         else:
             # Apply to each component
             result = []
-            for i in range(field.shape[1]):
+            for i in range(field_float.shape[1]):
                 result.append(
-                    torch.sparse.mm(self.laplacian_matrix, field[:, i].unsqueeze(1)).squeeze()
+                    torch.sparse.mm(self.laplacian_matrix, field_float[:, i].unsqueeze(1)).squeeze()
                 )
             return torch.stack(result, dim=1)
 

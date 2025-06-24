@@ -254,6 +254,22 @@ class MeshGenerator:
         new_elements = new_indices[valid_elements]
         
         return Mesh(new_vertices, new_elements)
+    
+    @staticmethod
+    def generate_rectangular_mesh(bounds: List[Tuple[float, float]], 
+                                resolution: Tuple[int, ...]) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Generate a rectangular mesh with specified bounds and resolution."""
+        if len(bounds) == 2 and len(resolution) == 2:
+            # 2D rectangular mesh
+            mesh = MeshGenerator.rectangular_grid(
+                nx=resolution[0], 
+                ny=resolution[1],
+                x_range=bounds[0],
+                y_range=bounds[1]
+            )
+            return mesh.vertices, mesh.elements
+        else:
+            raise NotImplementedError("Only 2D rectangular meshes supported")
 
 
 class AdaptiveMesh:

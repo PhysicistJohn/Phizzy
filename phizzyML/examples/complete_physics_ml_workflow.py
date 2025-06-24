@@ -43,7 +43,7 @@ def create_synthetic_experiment_data():
     np.random.seed(42)
     
     # Primary particles (with realistic physics correlations)
-    E1 = np.random.gamma(2, 5) + 5  # Energy in GeV
+    E1 = np.random.gamma(2, 5, n_events) + 5  # Energy in GeV
     theta1 = np.random.uniform(0, np.pi, n_events)
     phi1 = np.random.uniform(0, 2*np.pi, n_events)
     
@@ -54,7 +54,7 @@ def create_synthetic_experiment_data():
     pz1 = p1_mag * np.cos(theta1)
     
     # Secondary particles (conservation laws applied)
-    E2 = np.random.gamma(1.5, 3) + 2
+    E2 = np.random.gamma(1.5, 3, n_events) + 2
     theta2 = np.random.uniform(0, np.pi, n_events)
     phi2 = np.random.uniform(0, 2*np.pi, n_events)
     
@@ -66,7 +66,8 @@ def create_synthetic_experiment_data():
     # Add realistic experimental uncertainties
     def add_uncertainty(data, relative_error=0.05):
         uncertainty = np.abs(data) * relative_error
-        return data + np.random.normal(0, uncertainty), uncertainty
+        noise = np.random.normal(0, uncertainty, data.shape) if hasattr(data, 'shape') else np.random.normal(0, uncertainty)
+        return data + noise, uncertainty
     
     # Create dataset with uncertainties
     E1_meas, E1_err = add_uncertainty(E1, 0.03)
@@ -237,15 +238,21 @@ def train_physics_network(data):
     p2_data = data['p2_data']
     
     # Create input features (8D: E1, px1, py1, pz1, E2, px2, py2, pz2)
+    # Reshape to ensure 2D tensors
+    def ensure_2d(tensor):
+        if tensor.dim() == 1:
+            return tensor.unsqueeze(1)
+        return tensor
+    
     inputs = torch.cat([
-        p1_data['energy'].unsqueeze(1),
-        p1_data['px'].unsqueeze(1),
-        p1_data['py'].unsqueeze(1),
-        p1_data['pz'].unsqueeze(1),
-        p2_data['energy'].unsqueeze(1),
-        p2_data['px'].unsqueeze(1),
-        p2_data['py'].unsqueeze(1),
-        p2_data['pz'].unsqueeze(1)
+        ensure_2d(p1_data['energy']),
+        ensure_2d(p1_data['px']),
+        ensure_2d(p1_data['py']),
+        ensure_2d(p1_data['pz']),
+        ensure_2d(p2_data['energy']),
+        ensure_2d(p2_data['px']),
+        ensure_2d(p2_data['py']),
+        ensure_2d(p2_data['pz'])
     ], dim=1)
     
     # Create synthetic labels (signal vs background)
